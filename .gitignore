@@ -1,0 +1,4 @@
+node_modules/
+dist/
+test/adapter.cjs
+test/store.cjs

@@ -1,0 +1,105 @@
+/* Metro Map Studio — studio layout: topbar / sidebar / workspace / inspector / status */
+.topbar {
+  height: var(--topbar-h);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 14px;
+  background: linear-gradient(180deg, #16213b, #111c33);
+  color: #fff;
+  border-bottom: 1px solid #0b1226;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand-mark {
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: conic-gradient(from 210deg, var(--metro-red), var(--accent), #0ea5e9, var(--metro-red));
+  display: grid; place-items: center;
+  font-weight: 800; font-size: 15px; color: #fff;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.85);
+  flex: none;
+}
+.brand-name { font-weight: 700; font-size: 14px; letter-spacing: .01em; white-space: nowrap; }
+.brand-sub {
+  font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+  color: #a5b4fc; border: 1px solid #37447a; border-radius: 20px; padding: 2px 8px;
+  white-space: nowrap;
+}
+.topbar-actions { display: flex; align-items: center; gap: 6px; margin-left: auto; flex-wrap: wrap; }
+.topbar-sep { width: 1px; height: 22px; background: #2b3a63; margin: 0 4px; }
+
+.studio {
+  display: grid;
+  grid-template-columns: 268px minmax(0, 1fr) auto;
+  gap: 12px;
+  padding: 12px;
+  height: calc(100vh - var(--topbar-h) - var(--statusbar-h));
+  min-height: 0;
+}
+.sidebar, .inspector {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow-y: auto;
+  min-height: 0;
+}
+/* NOTE: display is toggled by legacy app code (style.display block/none). */
+#moocowwowyay { display: none; width: 268px; padding: 0 0 12px; }
+#stationwow { display: none; width: 276px; }
+
+.workspace { display: flex; flex-direction: column; min-width: 0; min-height: 0; }
+.canvas-toolbar {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 8px 10px; margin-bottom: 10px;
+}
+.canvas-hint { color: var(--muted); font-size: 12px; margin-right: auto; }
+.canvas-hint strong { color: var(--ink-soft); }
+.canvas-move { display: flex; align-items: center; gap: 4px; }
+.canvas-move-label { font-size: 11px; color: var(--muted); margin-right: 2px; }
+.canvas-scroll {
+  flex: 1; min-height: 0; overflow: auto;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background:
+    linear-gradient(var(--panel-soft) 0 0) padding-box,
+    repeating-linear-gradient(0deg, transparent 0 23px, #e6ebf3 23px 24px),
+    repeating-linear-gradient(90deg, transparent 0 23px, #e6ebf3 23px 24px),
+    var(--panel-soft);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+#canvas {
+  display: block;
+  background: #fff;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, .18);
+  cursor: crosshair;
+}
+
+.statusbar {
+  height: var(--statusbar-h);
+  display: flex; align-items: center; gap: 14px;
+  padding: 0 14px;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11.5px;
+  position: sticky; bottom: 0; z-index: 40;
+}
+.statusbar .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); display: inline-block; margin-right: 5px; }
+.statusbar kbd {
+  font-family: var(--mono); font-size: 10.5px;
+  border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 5px;
+  padding: 0 5px; background: var(--panel-soft); color: var(--ink-soft);
+}
+
+@media (max-width: 1100px) {
+  .studio { grid-template-columns: 240px minmax(0, 1fr) auto; }
+  .brand-sub { display: none; }
+}

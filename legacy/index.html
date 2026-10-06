@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Metro Map Studio — Projects</title>
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/home.css">
+<script>try{document.documentElement.dataset.theme=localStorage.getItem("mms.theme")||"light";}catch(e){document.documentElement.dataset.theme="light";}</script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-mark">M</div>
+    <div class="brand-name">Metro Map Studio</div>
+    <div class="brand-sub">Projects</div>
+  </div>
+  <div class="topbar-actions">
+    <button type="button" class="tbtn" id="themeBtn" title="Toggle dark / light mode" onclick="mmsThemeToggle()">&#9681; Dark</button>
+    <button type="button" class="tbtn tbtn-primary" id="newBtn">+ New project</button>
+  </div>
+</header>
+
+<main class="home-main">
+  <div class="home-hero">
+    <div>
+      <h1>Your metro plans</h1>
+      <p>Everything is stored in this browser (localStorage). Open a project to edit it, export backups as files, or import plans from the classic editor.</p>
+    </div>
+    <div class="home-hero-actions">
+      <button type="button" class="btn btn-ghost" onclick="document.getElementById('importBox').scrollIntoView({behavior:'smooth'})">Import plan</button>
+    </div>
+  </div>
+
+  <div class="home-section-title">Library <span class="count" id="projCount">0</span></div>
+  <div class="project-grid" id="projectGrid"></div>
+  <div class="empty-state" id="emptyState" style="display:none">
+    <span class="big">&#128646;</span>
+    <strong>No projects yet</strong>
+    Create your first plan, try a sample, or import an existing map code below.
+    <div style="margin-top:12px">
+      <button type="button" class="btn btn-primary" id="newBtnEmpty">+ New project</button>
+    </div>
+  </div>
+
+  <div class="home-section-title">Samples</div>
+  <div class="project-grid">
+    <div class="project-card sample">
+      <div class="project-name-row"><div class="project-name">Default sample</div></div>
+      <div class="project-meta"><span class="route-badge">2 routes</span><span>Opens a scratch session</span></div>
+      <div class="project-actions">
+        <a class="btn btn-ghost btn-sm" href="editor.html?sample=default">Open</a>
+      </div>
+    </div>
+    <div class="project-card sample">
+      <div class="project-name-row"><div class="project-name">Demo network</div></div>
+      <div class="project-meta"><span class="route-badge">4 routes</span><span>Opens a scratch session</span></div>
+      <div class="project-actions">
+        <a class="btn btn-ghost btn-sm" href="editor.html?sample=demo">Open</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="home-section-title">Import</div>
+  <div class="import-box" id="importBox">
+    <p>Import a <strong>.metro.json</strong> backup, a <strong>.txt</strong> with map code, or paste raw code (the same code from the editor&rsquo;s Save dialog).</p>
+    <div class="import-row">
+      <label class="btn btn-ghost btn-sm" for="importFile" style="cursor:pointer">Choose file&hellip;</label>
+      <input type="file" id="importFile" accept=".json,.txt,.metro.json" style="display:none">
+      <input class="text-input" id="importName" placeholder="Name for the imported plan (optional)" style="flex:1;min-width:200px">
+    </div>
+    <textarea id="importText" placeholder="...or paste map code here"></textarea>
+    <div class="import-row" style="margin-top:8px;margin-bottom:0">
+      <button type="button" class="btn btn-primary btn-sm" id="importBtn">Import plan</button>
+      <span class="import-error" id="importError" style="display:none"></span>
+    </div>
+  </div>
+</main>
+
+<script type="text/javascript" src="js/store.js"></script>
+<script type="text/javascript" src="js/home.js"></script>
+</body>
+</html>

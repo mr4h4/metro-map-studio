@@ -1,0 +1,29 @@
+{
+  "name": "metro-map-studio",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "npx esbuild src/engine/adapter.ts --bundle --platform=node --format=cjs --outfile=test/adapter.cjs --log-level=error && npx esbuild src/app/store.ts --bundle --platform=node --format=cjs --outfile=test/store.cjs --log-level=error && npx esbuild src/engine/vector.ts --bundle --platform=node --format=cjs --outfile=test/vector.cjs --log-level=error --external:jspdf --external:svg2pdf.js && node test/engine.test.cjs"
+  },
+  "dependencies": {
+    "jspdf": "^4.2.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-icons": "^5.7.0",
+    "svg2pdf.js": "^2.8.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "jsdom": "^30.1.2",
+    "tailwindcss": "^4.1.0",
+    "typescript": "~5.8.0",
+    "vite": "^7.0.0"
+  }
+}

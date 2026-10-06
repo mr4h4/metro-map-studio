@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Metro Map Studio</title></head>
+<body>
+<p style="font-family:system-ui">Opening Metro Map Studio&hellip;</p>
+<script>
+(function () {
+  var q = location.search || '';
+  location.replace('/' + q.replace(/^\?/, '?view=editor&'));
+})();
+</script>
+</body>
+</html>

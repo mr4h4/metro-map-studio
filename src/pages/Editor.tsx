@@ -37,6 +37,7 @@ import {
   deviceDpr,
   duplicateText,
   engineBooted,
+  engineReady,
   ensureLiveCanvas,
   findPillAt,
   findParkAt,
@@ -921,6 +922,15 @@ export default function Editor({ projectId, sessionKey, onHome, onBound, theme, 
     const c = canvasEl();
     if (c) c.style.cursor = tool === 6 ? 'grab' : '';
   }, [tool]);
+  /* React re-asserts the canvas width/height attrs when `size` commits, and
+     any width write resets the bitmap + transform — repaint right after so
+     opening a project (different canvas size) never lands on a blank sheet.
+     engineReady (not just booted): drawmap exists before moo() finishes and
+     would throw on missing globals. */
+  useEffect(() => {
+    applyDprTransform();
+    if (engineReady()) redraw();
+  }, [size.w, size.h, dpr]);
   useEffect(() => {
     if (engineBooted()) setStationOptions(stationDir, stationType);
   }, [stationDir, stationType]);
@@ -1034,8 +1044,13 @@ export default function Editor({ projectId, sessionKey, onHome, onBound, theme, 
   };
 
   const resize = (w: number, h: number) => {
-    setCanvasSize(w, h);
-    setSize({ w: canvasEl()?.width ?? w, h: canvasEl()?.height ?? h });
+    // map units throughout: canvasEl().width is backing store (×dpr)
+    const next = {
+      w: Math.min(4000, Math.max(200, Math.round(w))),
+      h: Math.min(4000, Math.max(200, Math.round(h))),
+    };
+    setCanvasSize(next.w, next.h);
+    setSize(next);
     setDirty(true);
     setSaveLabel('Unsaved changes');
   };

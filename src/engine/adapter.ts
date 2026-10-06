@@ -35,7 +35,15 @@ export function bootEngine(): void {
 
 export function engineReady(): boolean {
   const w = W();
-  return typeof w.drawmap === 'function' && w.mousemoded === 1;
+  if (typeof w.drawmap !== 'function' || w.mousemoded !== 1) return false;
+  // drawmap eval()s line globals; they only exist after moo()/qwwe() (or a
+  // restore) ran. The tool mirror writes mousemoded=1 on mount, so the mode
+  // alone can't prove readiness — a redraw before this would throw.
+  try {
+    return typeof w.numlines === 'number' && w.numlines >= 1 && typeof w.line1ver !== 'undefined';
+  } catch {
+    return false;
+  }
 }
 
 /** True once the kernel script has loaded (regardless of its idle mouse mode). */

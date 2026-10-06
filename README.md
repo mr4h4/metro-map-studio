@@ -27,12 +27,12 @@ src/
   pages/Home.tsx      Project library: new / open / import / export / delete
   pages/Editor.tsx    Studio: routes, line style, tools, canvas, undo, save
 public/
-  engine/legacy.js    Original kernel, VERBATIM (only host+coords compat patches)
+  engine/legacy.js    Drawing kernel descended from the classic app (patched:
+                        empty boot, DPR/zoom coords, free texts, rivers, parks,
+                        zones, sea, per-item text style)
   vendor/jscolor/     Colour picker for the kernel's hidden field
   a.html              High-res export helper · editor.html redirects old links
 test/engine.test.cjs  Kernel integration test (jsdom + stubbed 2d canvas)
-legacy/               Previous vanilla app, archived
-original/             Byte-faithful downloads from beno.uk — do not touch
 ```
 
 ## Features

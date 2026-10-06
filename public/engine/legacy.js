@@ -34,16 +34,14 @@ function moo(){
 setTimeout("moosghjghjgh()",32)
 }
 function moosghjghjgh(){
-var currentURL = window.location;
+/* MMS-PATCH: domain gate removed — the studio ships on its own domains,
+   so the engine always boots (the original alert() blocked everything). */
 canvas = document.getElementById("canvas");
 ctx = canvas.getContext("2d");
 canvas.oncontextmenu = function (){return false} 
-if ((currentURL.hostname == 'beno.uk') || (currentURL.hostname == 'www.beno.uk') || (currentURL.hostname == 'localhost') || (currentURL.hostname == '127.0.0.1') || (currentURL.hostname == '') || (currentURL.protocol == 'file:')){
 document.getElementById('moocowwowyay').style.display = 'block'
 wow()
-}else{
-alert('This app is from my website: beno.uk\nYou are not running it from this site.\n\nI have put a lot of time and effort to make this app for you.\nThe very least you can do in return is to run it from my website,\nso that my website gets lots of page views.\n\nOtherwise I will not feel like making any more games.')
-}}
+}
 
 
 //////////////////////////////////////////////////////

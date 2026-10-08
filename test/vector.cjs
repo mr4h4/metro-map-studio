@@ -113,11 +113,17 @@ var Recorder = class {
   strokeStyle = "#000000";
   fillStyle = "#000000";
   lineWidth = 1;
+  lineCap = "butt";
+  lineJoin = "miter";
   font = "10px sans-serif";
   textAlign = "start";
   textBaseline = "alphabetic";
+  dash = [];
   path = [];
   out = [];
+  setLineDash(dash) {
+    this.dash = Array.isArray(dash) ? dash.map((v) => round2(v)) : [];
+  }
   beginPath() {
     this.path = [];
   }
@@ -138,8 +144,11 @@ var Recorder = class {
   }
   stroke() {
     if (this.path.length === 0) return;
+    const dash = this.dash.length > 0 ? ` stroke-dasharray="${this.dash.join(" ")}"` : "";
+    const cap = this.lineCap && this.lineCap !== "butt" ? ` stroke-linecap="${escXml(this.lineCap)}"` : "";
+    const join = this.lineJoin && this.lineJoin !== "miter" ? ` stroke-linejoin="${escXml(this.lineJoin)}"` : "";
     this.out.push(
-      `<path d="${this.path.join("")}" fill="none" stroke="${escXml(this.strokeStyle)}" stroke-width="${round2(this.lineWidth)}"/>`
+      `<path d="${this.path.join("")}" fill="none" stroke="${escXml(this.strokeStyle)}" stroke-width="${round2(this.lineWidth)}"${cap}${join}${dash}/>`
     );
   }
   fill() {
@@ -158,22 +167,59 @@ var Recorder = class {
   }
   clearRect() {
   }
+  xf = [1, 0, 0, 1, 0, 0];
+  stack = [];
   save() {
+    this.stack.push([...this.xf]);
   }
   restore() {
+    const m = this.stack.pop();
+    if (m) this.xf = m;
   }
-  setTransform() {
+  setTransform(a = 1, b = 0, c = 0, d = 1, e = 0, f = 0) {
+    this.xf = [a, b, c, d, e, f];
+  }
+  translate(x, y) {
+    const [a, b, c, d, e, f] = this.xf;
+    this.xf = [a, b, c, d, e + a * x + c * y, f + b * x + d * y];
+  }
+  rotate(rad) {
+    const [a, b, c, d, e, f] = this.xf;
+    const cos = Math.cos(rad);
+    const sin = Math.sin(rad);
+    this.xf = [a * cos + c * sin, b * cos + d * sin, a * -sin + c * cos, b * -sin + d * cos, e, f];
+  }
+  apply(x, y) {
+    const [a, b, c, d, e, f] = this.xf;
+    return [round2(a * x + c * y + e), round2(b * x + d * y + f)];
+  }
+  rotation() {
+    return Math.atan2(this.xf[1], this.xf[0]) * 180 / Math.PI;
   }
   fillText(text, x, y) {
     const f = parseFont(this.font);
     const anchor = anchorOf(this.textAlign);
     const base = this.textBaseline && this.textBaseline !== "alphabetic" ? ` dominant-baseline="${escXml(this.textBaseline)}"` : "";
+    const [tx, ty] = this.apply(x, y);
+    const rot = this.rotation();
+    const rotAttr = Math.abs(rot) > 0.01 ? ` transform="rotate(${round2(rot)} ${tx} ${ty})"` : "";
     this.out.push(
-      `<text x="${round2(x)}" y="${round2(y)}" font-family="${escXml(f.family)}" font-size="${f.size}"${f.bold ? ' font-weight="bold"' : ""} text-anchor="${anchor}"${base} fill="${escXml(this.fillStyle)}">${escXml(text)}</text>`
+      `<text x="${tx}" y="${ty}" font-family="${escXml(f.family)}" font-size="${f.size}"${f.bold ? ' font-weight="bold"' : ""} text-anchor="${anchor}"${base}${rotAttr} fill="${escXml(this.fillStyle)}">${escXml(text)}</text>`
     );
   }
   measureText(text) {
     return { width: this.measure(String(text), this.font) };
+  }
+  strokeText(text, x, y) {
+    const f = parseFont(this.font);
+    const anchor = anchorOf(this.textAlign);
+    const base = this.textBaseline && this.textBaseline !== "alphabetic" ? ` dominant-baseline="${escXml(this.textBaseline)}"` : "";
+    const [tx, ty] = this.apply(x, y);
+    const rot = this.rotation();
+    const rotAttr = Math.abs(rot) > 0.01 ? ` transform="rotate(${round2(rot)} ${tx} ${ty})"` : "";
+    this.out.push(
+      `<text x="${tx}" y="${ty}" font-family="${escXml(f.family)}" font-size="${f.size}"${f.bold ? ' font-weight="bold"' : ""} text-anchor="${anchor}"${base}${rotAttr} fill="none" stroke="${escXml(this.strokeStyle)}" stroke-width="${round2(this.lineWidth)}" stroke-linejoin="round">${escXml(text)}</text>`
+    );
   }
   elements() {
     return this.out;
@@ -195,7 +241,10 @@ function renderVector() {
       return 0;
     }
   });
-  w.canvas = { width: canvas.width, height: canvas.height };
+  const dpr = typeof w.mmsDprK === "number" && w.mmsDprK > 0 ? w.mmsDprK : 1;
+  const mapW = Math.round(canvas.width / dpr);
+  const mapH = Math.round(canvas.height / dpr);
+  w.canvas = { width: mapW, height: mapH };
   w.ctx = rec;
   try {
     w.drawmap(1);
@@ -205,9 +254,9 @@ function renderVector() {
   }
   const transparent = w.cowpatuuuuu === 1;
   const paper = typeof w.mmsCanvasCol === "string" && w.mmsCanvasCol !== "" ? w.mmsCanvasCol : "#ffffff";
-  const bg = transparent ? "" : `<rect x="0" y="0" width="${canvas.width}" height="${canvas.height}" fill="${escXml(paper)}"/>`;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}" viewBox="0 0 ${canvas.width} ${canvas.height}">` + bg + rec.elements().join("") + `</svg>`;
-  return { svg, w: canvas.width, h: canvas.height };
+  const bg = transparent ? "" : `<rect x="0" y="0" width="${mapW}" height="${mapH}" fill="${escXml(paper)}"/>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${mapW}" height="${mapH}" viewBox="0 0 ${mapW} ${mapH}">` + bg + rec.elements().join("") + `</svg>`;
+  return { svg, w: mapW, h: mapH };
 }
 function downloadSVG(name) {
   const { svg } = renderVector();

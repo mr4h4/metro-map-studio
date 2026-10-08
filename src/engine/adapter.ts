@@ -14,11 +14,28 @@ export function geval(code: string): void {
   (0, eval)(code);
 }
 
+export type LineStyle = 'solid' | 'dashed';
+
 export interface RouteInfo {
   index: number;
   label: string;
   color: string;
   width: number;
+  style: LineStyle;
+  borderColor: string;
+  borderWidth: number;
+}
+
+export const LINE_STYLES: { value: LineStyle; label: string; desc: string }[] = [
+  { value: 'solid', label: 'Solid', desc: 'New strokes draw solid' },
+  { value: 'dashed', label: 'Under construction', desc: 'New strokes draw dashed' },
+];
+
+export const LINE_BORDER_DEFAULT_COLOR = '#ffffff';
+export const LINE_BORDER_MAX_W = 10;
+
+function lineStyleOf(v: unknown): LineStyle {
+  return v === 'dashed' ? 'dashed' : 'solid';
 }
 
 export type ToolMode = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10; // draw | erase | stations | remove | text | pan | river | park | zone | sea
@@ -504,11 +521,21 @@ export function listRoutes(): RouteInfo[] {
   const out: RouteInfo[] = [];
   for (let i = 1; i <= n; i++) {
     const opt = document.getElementById(`option${i}`);
+    const styleRaw = w[`line${i}style`];
+    const bwRaw = w[`line${i}bwid`];
+    const bcRaw = w[`line${i}bcol`];
     out.push({
       index: i,
       label: (opt?.textContent || `ROUTE ${i}`).trim() || `ROUTE ${i}`,
       color: typeof w[`line${i}col`] === 'string' ? (w[`line${i}col`] as string) : '#000000',
       width: Number(w[`line${i}width`]) || 4,
+      style: lineStyleOf(typeof styleRaw === 'string' ? styleRaw : undefined),
+      borderColor:
+        typeof bcRaw === 'string' && /^#[0-9a-fA-F]{6}$/.test(bcRaw) ? bcRaw : LINE_BORDER_DEFAULT_COLOR,
+      borderWidth:
+        typeof bwRaw === 'number' && Number.isFinite(bwRaw)
+          ? Math.min(LINE_BORDER_MAX_W, Math.max(0, Math.floor(bwRaw)))
+          : 0,
     });
   }
   return out;
@@ -539,6 +566,7 @@ export function createRoute(): void {
   const w = W();
   const next = (Number(w.numlines) || 0) + 1;
   clearRouteTexts(next); // drop stale texts/pill widths colliding with this index
+  resetLineStyle(next); // drop stale style/border colliding with this index
   (w.addrouteyay as (s: string) => void)(`ROUTE ${next}`);
 }
 
@@ -560,6 +588,110 @@ export function applyLineColor(i: number, color: string): void {
 export function applyLineWidth(i: number, width: number): void {
   W()[`line${i}width`] = width;
   redraw();
+}
+
+export function getLineStyle(i: number): LineStyle {
+  return lineStyleOf(W()[`line${i}style`]);
+}
+
+/** Track segment kinds carrying their own stamped style. */
+export const SEG_KINDS = ['ver', 'hor', 'topleft', 'topright'] as const;
+export type SegKind = (typeof SEG_KINDS)[number];
+
+/** Bounds for the stale-stamp sweep on load (slots are dense, so it exits early). */
+const MAX_ROUTES = 24;
+const MAX_SEG_STAMPS = 2000;
+
+export function segCount(route: number, kind: SegKind): number {
+  const n = W()[`line${route}${kind}`];
+  return typeof n === 'number' && Number.isFinite(n) && n > 0 ? Math.floor(n) : 0;
+}
+
+/** Effective style of one track segment: stamped value, else route style. */
+export function getSegmentStyle(route: number, kind: SegKind, index: number): LineStyle {
+  const v = W()[`line${route}${kind}${index}style`];
+  if (v === 'dashed' || v === 'solid') return v;
+  return getLineStyle(route);
+}
+
+/**
+ * Freeze the visible style of every existing segment into explicit stamps so
+ * a later route-style switch only affects segments drawn afterwards.
+ */
+function materializeSegmentStyles(route: number): void {
+  const w = W();
+  const fb = getLineStyle(route);
+  for (const kind of SEG_KINDS) {
+    const n = segCount(route, kind);
+    for (let j = 1; j <= n; j++) {
+      const k = `line${route}${kind}${j}style`;
+      if (w[k] !== 'solid' && w[k] !== 'dashed') w[k] = fb;
+    }
+  }
+}
+
+/**
+ * Drop every per-segment style stamp. Loading code (old saves carry none,
+ * new ones carry their own) must never inherit stamps from previous state,
+ * or segments would render with another drawing's styles.
+ */
+function clearStaleSegStyles(): void {
+  const w = W() as Record<string, unknown>;
+  for (let i = 1; i <= MAX_ROUTES; i++) {
+    for (const kind of SEG_KINDS) {
+      for (let j = 1; j <= MAX_SEG_STAMPS; j++) {
+        const k = `line${i}${kind}${j}style`;
+        if (!(k in w)) break; // commits stamp sequentially, so slots are dense
+        delete w[k];
+      }
+    }
+  }
+}
+
+/**
+ * Style for NEW segments of the route ('solid' normal, 'dashed' construction).
+ * Existing segments keep their stamped style — switching type never redraws
+ * what is already drawn, so a line can mix solid and dashed stretches.
+ */
+export function setLineStyle(i: number, style: LineStyle): void {
+  const next: LineStyle = style === 'dashed' ? 'dashed' : 'solid';
+  if (getLineStyle(i) === next) return;
+  materializeSegmentStyles(i);
+  W()[`line${i}style`] = next;
+  redraw();
+}
+
+export function getLineBorder(i: number): { color: string; width: number } {
+  const w = W();
+  const c = w[`line${i}bcol`];
+  const bw = w[`line${i}bwid`];
+  return {
+    color: typeof c === 'string' && /^#[0-9a-fA-F]{6}$/.test(c) ? c : LINE_BORDER_DEFAULT_COLOR,
+    width:
+      typeof bw === 'number' && Number.isFinite(bw)
+        ? Math.min(LINE_BORDER_MAX_W, Math.max(0, Math.floor(bw)))
+        : 0,
+  };
+}
+
+export function setLineBorderColor(i: number, color: string): void {
+  if (!/^#[0-9a-fA-F]{6}$/.test(color)) return;
+  W()[`line${i}bcol`] = color;
+  redraw();
+}
+
+export function setLineBorderWidth(i: number, width: number): void {
+  if (!Number.isFinite(width)) return;
+  W()[`line${i}bwid`] = Math.min(LINE_BORDER_MAX_W, Math.max(0, Math.floor(width)));
+  redraw();
+}
+
+/** Reset a route slot to the default style (no stale dashed/border on reuse). */
+export function resetLineStyle(i: number): void {
+  const w = W();
+  w[`line${i}style`] = 'solid';
+  w[`line${i}bwid`] = 0;
+  w[`line${i}bcol`] = LINE_BORDER_DEFAULT_COLOR;
 }
 
 export function setCurve(v: number): void {
@@ -593,6 +725,7 @@ export function captureCode(): string {
 }
 
 export function restoreCode(code: string): void {
+  clearStaleSegStyles();
   geval(code);
   (W().routechange as () => void)();
   bakeRiverStrands();
@@ -606,6 +739,7 @@ export function newBlankProject(): void {
   // per-route texts: setroutes() never clears them, so without this the old
   // labels (and stale pill widths) would leak into the blank project
   for (let i = 1, n = numLines(); i <= n; i++) clearRouteTexts(i);
+  clearStaleSegStyles();
   geval('curvenum = 2;fontzsize = 8;setroutes(1);riverver = 0;riverhor = 0;rivertopleft = 0;rivertopright = 0;parks = 0;zonever = 0;zonehor = 0;zonetopleft = 0;zonetopright = 0;seas = 0;drawmap(1)');
   bakeRiverStrands();
   bakeZonePaths();

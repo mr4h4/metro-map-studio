@@ -223,12 +223,20 @@ export default function CanvasStage(props: CanvasStageProps) {
       >
         <span
           ref={ringRef}
-          className="absolute -left-[11px] -top-[11px] block h-[22px] w-[22px] rounded-full border-2 border-white mix-blend-difference transition-transform"
+          className="absolute -left-[11px] -top-[11px] block h-[22px] w-[22px] rounded-full border-2 border-white transition-transform"
+          style={{ boxShadow: '0 0 0 3.5px #000' }}
         />
-        <span
-          className="absolute -left-[3px] -top-[3px] block h-[6px] w-[6px] rounded-full shadow"
-          style={{ background: props.cursorColor, boxShadow: '0 0 0 1.5px #fff, 0 1px 4px rgba(0,0,0,.5)' }}
-        />
+        <span className="absolute -left-[3px] -top-[3px] block h-[6px] w-[6px]">
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 block rounded-full"
+            style={{ boxShadow: '0 0 0 1.5px #fff, 0 0 0 3px #000' }}
+          />
+          <span
+            className="absolute inset-0 block rounded-full shadow"
+            style={{ background: props.cursorColor, boxShadow: '0 1px 4px rgba(0,0,0,.5)' }}
+          />
+        </span>
       </div>
     </div>
   );

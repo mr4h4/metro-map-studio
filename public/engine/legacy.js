@@ -56,7 +56,7 @@ stat3q = 1.85
 stat3aq = 1.2
 stat4q = 1.2
 stat4aq = 0.95
-stat5q = 3;stat6q = 1.85;mmsTextCol = "#000000";mmsTextFont = "Arial";mmsCanvasCol = "#ffffff";mmsZoomK = 1;mmsPanX = 0;mmsPanY = 0;mmsDprK = 1;rivercol = "#2f80ed";riverwidth = 24;rivercurve = 6;parkcol = "#66bb6a";parkradius = 0;parkbwid = 0;parkbcol = "#000000";riverver = 0;riverhor = 0;rivertopleft = 0;rivertopright = 0;parks = 0;zonever = 0;zonehor = 0;zonetopleft = 0;zonetopright = 0;zonecol = "#9333ea";zonewidth = 4;seacol = "#38bdf8";seas = 0
+stat5q = 3;stat6q = 1.85;stat7q = 2.8;mmsTextCol = "#000000";mmsTextFont = "Arial";mmsCanvasCol = "#ffffff";mmsZoomK = 1;mmsPanX = 0;mmsPanY = 0;mmsDprK = 1;rivercol = "#2f80ed";riverwidth = 24;rivercurve = 6;parkcol = "#66bb6a";parkradius = 0;parkbwid = 0;parkbcol = "#000000";riverver = 0;riverhor = 0;rivertopleft = 0;rivertopright = 0;parks = 0;zonever = 0;zonehor = 0;zonetopleft = 0;zonetopright = 0;zonecol = "#9333ea";zonewidth = 4;seacol = "#38bdf8";seas = 0
 stat5aq = 2.25
 
 
@@ -299,10 +299,38 @@ drawmap(0)
 if ((startx != eendx) || (starty != eendy)){
 ctx.strokeStyle = (eval ("line" + currentroute + "col"))
 ctx.lineWidth = (eval ("line" + currentroute + "width"))
+/* MMS-PATCH line style preview: dashed (construction) + casing border */
+mmsPvDash = [];
+try { mmsPvStyV = eval("line" + currentroute + "style"); } catch (mmsPvStyE){ mmsPvStyV = "solid"; }
+if (mmsPvStyV == "dashed"){ mmsPvDash = [Math.max(4, (eval ("line" + currentroute + "width")) * 2), Math.max(3, (eval ("line" + currentroute + "width")) * 1.4)]; }
+mmsPvBw = 0;
+try { mmsPvBwV = eval("line" + currentroute + "bwid"); if (((typeof mmsPvBwV) == "number") && (mmsPvBwV > 0)){ mmsPvBw = mmsPvBwV; } } catch (mmsPvBwE){}
+mmsPvBc = "";
+try { mmsPvBcV = eval("line" + currentroute + "bcol"); if (((typeof mmsPvBcV) == "string") && (mmsPvBcV != "")){ mmsPvBc = mmsPvBcV; } } catch (mmsPvBcE){}
+if ((mmsPvBw > 0) && (mmsPvBc != "")){
+try { ctx.setLineDash([]); } catch (mmsPvDsE){}
+mmsPvCp = ctx.lineCap; mmsPvJn = ctx.lineJoin;
+try { ctx.lineCap = "round"; } catch (mmsPvCpE){}
+try { ctx.lineJoin = "round"; } catch (mmsPvJnE){}
+ctx.strokeStyle = mmsPvBc
+ctx.lineWidth = (eval ("line" + currentroute + "width")) + (mmsPvBw * 2)
+ctx.beginPath()
+ctx.moveTo(startx,starty)
+ctx.lineTo(eendx,eendy)
+ctx.stroke()
+ctx.strokeStyle = (eval ("line" + currentroute + "col"))
+ctx.lineWidth = (eval ("line" + currentroute + "width"))
+}
+try { ctx.setLineDash(mmsPvDash); } catch (mmsPvDsE2){}
 ctx.beginPath()
 ctx.moveTo(startx,starty)
 ctx.lineTo(eendx,eendy) 
 ctx.stroke()
+try { ctx.setLineDash([]); } catch (mmsPvDsE3){}
+if ((mmsPvBw > 0) && (mmsPvBc != "")){
+try { ctx.lineCap = mmsPvCp; } catch (mmsPvCpE2){}
+try { ctx.lineJoin = mmsPvJn; } catch (mmsPvJnE2){}
+}
 }}}
 
 
@@ -338,6 +366,7 @@ undo++
 redo = undo
 window["undo" + undo] = ("line" + currentroute + "ver--")
 window["redo" + undo] = ("line" + currentroute + "ver++")
+window['line' + currentroute + 'ver' + (eval('line' + currentroute + 'ver')) + 'style'] = mmsCommitSegStyle();
 }
 
 if (angleaa == 5){
@@ -349,6 +378,7 @@ undo++
 redo = undo
 window["undo" + undo] = ("line" + currentroute + "ver--")
 window["redo" + undo] = ("line" + currentroute + "ver++")
+window['line' + currentroute + 'ver' + (eval('line' + currentroute + 'ver')) + 'style'] = mmsCommitSegStyle();
 }
 
 if (angleaa == 3){
@@ -360,6 +390,7 @@ undo++
 redo = undo
 window["undo" + undo] = ("line" + currentroute + "hor--")
 window["redo" + undo] = ("line" + currentroute + "hor++")
+window['line' + currentroute + 'hor' + (eval('line' + currentroute + 'hor')) + 'style'] = mmsCommitSegStyle();
 }
 
 if (angleaa == 7){
@@ -371,6 +402,7 @@ undo++
 redo = undo
 window["undo" + undo] = ("line" + currentroute + "hor--")
 window["redo" + undo] = ("line" + currentroute + "hor++")
+window['line' + currentroute + 'hor' + (eval('line' + currentroute + 'hor')) + 'style'] = mmsCommitSegStyle();
 }
 
 if (angleaa == 6){
@@ -382,6 +414,7 @@ undo++
 redo = undo
 window["undo" + undo] = ("line" + currentroute + "topleft--")
 window["redo" + undo] = ("line" + currentroute + "topleft++")
+window['line' + currentroute + 'topleft' + (eval('line' + currentroute + 'topleft')) + 'style'] = mmsCommitSegStyle();
 }
 
 
@@ -394,6 +427,7 @@ undo++
 redo = undo
 window["undo" + undo] = ("line" + currentroute + "topright--")
 window["redo" + undo] = ("line" + currentroute + "topright++")
+window['line' + currentroute + 'topright' + (eval('line' + currentroute + 'topright')) + 'style'] = mmsCommitSegStyle();
 }
 
 
@@ -406,6 +440,7 @@ undo++
 redo = undo
 window["undo" + undo] = ("line" + currentroute + "topleft--")
 window["redo" + undo] = ("line" + currentroute + "topleft++")
+window['line' + currentroute + 'topleft' + (eval('line' + currentroute + 'topleft')) + 'style'] = mmsCommitSegStyle();
 }
 
 
@@ -419,6 +454,7 @@ undo++
 redo = undo
 window["undo" + undo] = ("line" + currentroute + "topright--")
 window["redo" + undo] = ("line" + currentroute + "topright++")
+window['line' + currentroute + 'topright' + (eval('line' + currentroute + 'topright')) + 'style'] = mmsCommitSegStyle();
 }
 
 
@@ -683,6 +719,34 @@ qq2++
 
 
 ///////////////////////////////////////////////////////////////////////// THE MAIN DRAW FUNCTION - FIRST CREATE A COPY OF THE VARS
+/* MMS-PATCH per-segment line style: each track segment carries its own
+   style ("solid"/"dashed"); unset segments fall back to the route style
+   (which is also the style new segments are stamped with). Connectors use
+   dashed when either side is dashed so mixed lines stay visually continuous. */
+function mmsEffSegStyle(q1, kind, j){
+try { mmsEffSv = eval("line" + q1 + kind + j + "style"); } catch (mmsEffE){ mmsEffSv = ""; }
+if ((mmsEffSv == "dashed") || (mmsEffSv == 1)){ return "dashed"; }
+if ((mmsEffSv == "solid") || (mmsEffSv == 0)){ return "solid"; }
+try { mmsEffRv = eval("line" + q1 + "style"); } catch (mmsEffE2){ mmsEffRv = "solid"; }
+return (mmsEffRv == "dashed") ? "dashed" : "solid";
+}
+function mmsApplyStyleDash(sty, ew){
+mmsLnDash = [];
+if (sty == "dashed"){
+if (!((typeof ew) == "number") || !(ew > 0)){ ew = 4; }
+mmsLnDash = [Math.max(4, ew * 2), Math.max(3, ew * 1.4)];
+}
+try { ctx.setLineDash(mmsLnDash); } catch (mmsLnDashE){}
+}
+function mmsPairStyle(q1, ka, ja, kb, jb){
+if (mmsEffSegStyle(q1, ka, ja) == "dashed"){ return "dashed"; }
+if (mmsEffSegStyle(q1, kb, jb) == "dashed"){ return "dashed"; }
+return "solid";
+}
+function mmsCommitSegStyle(){
+try { mmsCmSv = eval("line" + currentroute + "style"); } catch (mmsCmE){ mmsCmSv = "solid"; }
+return (mmsCmSv == "dashed") ? "dashed" : "solid";
+}
 function drawmap(asdqnf){
 q1 = 1
 while ((q1 - 1) < numlines ){
@@ -856,6 +920,77 @@ while ((q1 - 1) < numlines ){
 ctx.strokeStyle = (eval ("line" + q1 + "col"))
 ctx.lineWidth = (eval ("line" + q1 + "width"))
 ewidth = (eval ("line" + q1 + "width"))
+/* MMS-PATCH line style: per-segment dashed (construction) + continuous casing.
+   Dash is set per segment below; the casing wraps every track stroke with
+   round caps/joins so the border never cuts at corners. */
+mmsLnDash = [];
+try { ctx.setLineDash([]); } catch (mmsLnDashE){}
+mmsLnBw = 0;
+try { mmsLnBwV = eval("line" + q1 + "bwid"); if (((typeof mmsLnBwV) == "number") && (mmsLnBwV > 0)){ mmsLnBw = mmsLnBwV; } } catch (mmsLnBwE){}
+mmsLnBc = "";
+try { mmsLnBcV = eval("line" + q1 + "bcol"); if (((typeof mmsLnBcV) == "string") && (mmsLnBcV != "")){ mmsLnBc = mmsLnBcV; } } catch (mmsLnBcE){}
+mmsLnOrigStroke = 0;
+mmsPassN = 1;
+if ((mmsLnBw > 0) && (mmsLnBc != "")){
+mmsPassN = 2;
+mmsLnOrigStroke = ctx.stroke;
+ctx.stroke = function(){
+try {
+var mmsLnSs = ctx.strokeStyle; var mmsLnLw = ctx.lineWidth; var mmsLnCp = ctx.lineCap; var mmsLnJn = ctx.lineJoin;
+try { ctx.lineCap = "round"; } catch (mmsLnCpE){}
+try { ctx.lineJoin = "round"; } catch (mmsLnJnE){}
+if (mmsPass == 1){
+try { ctx.setLineDash([]); } catch (mmsLnCsE){}
+ctx.strokeStyle = mmsLnBc; ctx.lineWidth = mmsLnLw + (mmsLnBw * 2);
+mmsLnOrigStroke.call(ctx);
+ctx.strokeStyle = mmsLnSs; ctx.lineWidth = mmsLnLw;
+try { ctx.setLineDash(mmsLnDash); } catch (mmsLnCsE2b){}
+} else {
+ctx.strokeStyle = mmsLnSs; ctx.lineWidth = mmsLnLw;
+try { ctx.setLineDash(mmsLnDash); } catch (mmsLnCsE2){}
+mmsLnOrigStroke.call(ctx);
+}
+try { ctx.lineCap = mmsLnCp; } catch (mmsLnCpE2){}
+try { ctx.lineJoin = mmsLnJn; } catch (mmsLnJnE2){}
+} catch (mmsLnCsE3){ try { mmsLnOrigStroke.call(ctx); } catch (mmsLnCsE4){} }
+};
+}
+/* MMS-PATCH two passes: casing for every segment first, interiors after,
+   so a border never overlaps a neighbour segment's interior. aline is
+   re-copied per pass because the curve pass mutates it. */
+for (mmsPass = 1; mmsPass <= mmsPassN; mmsPass++){
+q2 = 1
+window["aline" + q1 + "ver"] = eval ("line" + q1 + "ver")
+while ((q2 - 1) < (eval ("aline" + q1 + "ver"))){
+window["aline" + q1 + "ver" + q2 + "x"] = eval ("line" + q1 + "ver" + q2 + "x")
+window["aline" + q1 + "ver" + q2 + "y1"] = eval ("line" + q1 + "ver" + q2 + "y1")
+window["aline" + q1 + "ver" + q2 + "y2"] = eval ("line" + q1 + "ver" + q2 + "y2")
+q2++
+}
+q2 = 1
+window["aline" + q1 + "hor"] = eval ("line" + q1 + "hor")
+while ((q2 - 1) < (eval ("aline" + q1 + "hor"))){
+window["aline" + q1 + "hor" + q2 + "x1"] = eval ("line" + q1 + "hor" + q2 + "x1")
+window["aline" + q1 + "hor" + q2 + "x2"] = eval ("line" + q1 + "hor" + q2 + "x2")
+window["aline" + q1 + "hor" + q2 + "y"] = eval ("line" + q1 + "hor" + q2 + "y")
+q2++
+}
+q2 = 1
+window["aline" + q1 + "topleft"] = eval ("line" + q1 + "topleft")
+while ((q2 - 1) < (eval ("aline" + q1 + "topleft"))){
+window["aline" + q1 + "topleft" + q2 + "y"] = eval ("line" + q1 + "topleft" + q2 + "y")
+window["aline" + q1 + "topleft" + q2 + "x"] = eval ("line" + q1 + "topleft" + q2 + "x")
+window["aline" + q1 + "topleft" + q2 + "width"] = eval ("line" + q1 + "topleft" + q2 + "width")
+q2++
+}
+q2 = 1
+window["aline" + q1 + "topright"] = eval ("line" + q1 + "topright")
+while ((q2 - 1) < (eval ("aline" + q1 + "topright"))){
+window["aline" + q1 + "topright" + q2 + "y"] = eval ("line" + q1 + "topright" + q2 + "y")
+window["aline" + q1 + "topright" + q2 + "x"] = eval ("line" + q1 + "topright" + q2 + "x")
+window["aline" + q1 + "topright" + q2 + "width"] = eval ("line" + q1 + "topright" + q2 + "width")
+q2++
+}
 
 if (asdqnf == 1){
 
@@ -877,6 +1012,7 @@ hjkl6 = ((eval ("aline" + q1 + "topleft" + q3 + 'y')) + (eval ("aline" + q1 + "t
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "ver", q2, "topleft", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "ver" + q2 + 'y1'] -= 0.5
 window["aline" + q1 + "topleft" + q3 + 'width'] += 0.5
@@ -904,6 +1040,7 @@ hjkl6 = ((eval ("aline" + q1 + "topright" + q3 + 'y')) + (eval ("aline" + q1 + "
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "ver", q2, "topright", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "ver" + q2 + 'y1'] -= 0.5
 window["aline" + q1 + "topright" + q3 + 'width'] += 0.5
@@ -934,6 +1071,7 @@ hjkl6 = (eval ("aline" + q1 + "topleft" + q2 + 'y'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topleft", q2, "hor", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "hor" + q3 + 'x2'] += 0.5
 window["aline" + q1 + "topleft" + q2 + 'width'] += 0.5
@@ -965,6 +1103,7 @@ hjkl6 = (eval ("aline" + q1 + "topleft" + q2 + 'y'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topleft", q2, "ver", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "ver" + q2 + 'y3'] += 0.5
 window["aline" + q1 + "topleft" + q2 + 'width'] += 0.5
@@ -997,6 +1136,7 @@ hjkl6 = (eval ("aline" + q1 + "topright" + q2 + 'y'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topright", q2, "hor", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "hor" + q3 + 'x1'] -= 0.5
 window["aline" + q1 + "topright" + q2 + 'width'] += 0.5
@@ -1026,6 +1166,7 @@ hjkl6 = ((eval ("aline" + q1 + "topleft" + q3 + 'y')) + (eval ("aline" + q1 + "t
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "hor", q2, "topleft", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "hor" + q2 + 'x1'] -= 0.5
 window["aline" + q1 + "topleft" + q3 + 'width'] += 0.5
@@ -1053,6 +1194,7 @@ hjkl6 = ((eval ("aline" + q1 + "topright" + q3 + 'y')) + (eval ("aline" + q1 + "
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "hor", q2, "topright", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "hor" + q2 + 'x2'] += 0.5
 window["aline" + q1 + "topright" + q3 + 'width'] += 0.5
@@ -1082,6 +1224,7 @@ hjkl6 = (eval ("aline" + q1 + "topright" + q2 + 'y'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topright", q2, "ver", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "ver" + q3 + 'y2'] += 0.5
 window["aline" + q1 + "topright" + q2 + 'width'] += 0.5
@@ -1121,6 +1264,7 @@ hjkl6 = (eval ("aline" + q1 + "topright" + q2 + 'y'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topright", q2, "ver", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "topright" + q3 + 'width'] += 0.5
 window["aline" + q1 + "topright" + q3 + 'x'] += 0.5
@@ -1152,6 +1296,7 @@ hjkl6 = (eval ("aline" + q1 + "topleft" + q2 + 'y'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topleft", q2, "ver", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "topleft" + q3 + 'width'] += 0.5
 window["aline" + q1 + "topleft" + q3 + 'x'] -= 0.5
@@ -1182,6 +1327,7 @@ hjkl6 = ((eval ("aline" + q1 + "topleft" + q2 + 'y')) + (eval ("aline" + q1 + "t
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topleft", q2, "ver", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "topleft" + q3 + 'width'] += 1
 }}}
@@ -1209,6 +1355,7 @@ hjkl6 = ((eval ("aline" + q1 + "topright" + q2 + 'y')) + (eval ("aline" + q1 + "
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topright", q2, "ver", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "topright" + q3 + 'width'] += 1
 }}}
@@ -1242,6 +1389,7 @@ hjkl6 = (eval ("aline" + q1 + "topright" + q2 + 'y'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topright", q2, "hor", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "topright" + q3 + 'width'] += 0.5
 window["aline" + q1 + "topright" + q3 + 'x'] += 0.5
@@ -1273,6 +1421,7 @@ hjkl6 = (eval ("aline" + q1 + "topleft" + q2 + 'y'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topleft", q2, "hor", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "topleft" + q3 + 'width'] += 0.5
 window["aline" + q1 + "topleft" + q3 + 'x'] -= 0.5
@@ -1302,6 +1451,7 @@ hjkl6 = ((eval ("aline" + q1 + "topleft" + q2 + 'y'))       + (eval ("aline" + q
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topleft", q2, "hor", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "topleft" + q3 + 'width'] += 0.5
 }}}
@@ -1331,6 +1481,7 @@ hjkl6 = ((eval ("aline" + q1 + "topright" + q2 + 'y'))       + (eval ("aline" + 
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topright", q2, "hor", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "topright" + q3 + 'width'] += 0.5
 }}}
@@ -1363,6 +1514,7 @@ hjkl6 = (eval ("aline" + q1 + "hor" + q3 + 'y'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topright", q2, "hor", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "hor" + q3 + 'x2'] += 0.5
 }
@@ -1393,6 +1545,7 @@ hjkl6 = (eval ("aline" + q1 + "hor" + q3 + 'y'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topright", q2, "hor", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "hor" + q3 + 'x1'] -= 0.5
 }
@@ -1425,6 +1578,7 @@ hjkl6 = (eval ("aline" + q1 + "ver" + q3 + 'y2'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topright", q2, "ver", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "ver" + q3 + 'y2'] += 0.5
 }
@@ -1456,6 +1610,7 @@ hjkl6 = (eval ("aline" + q1 + "ver" + q3 + 'y1'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topright", q2, "ver", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "ver" + q3 + 'y1'] -= 0.5
 }
@@ -1488,6 +1643,7 @@ hjkl6 = (eval ("aline" + q1 + "ver" + q3 + 'y1'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topleft", q2, "ver", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "ver" + q3 + 'y1'] -= 0.5
 }
@@ -1517,6 +1673,7 @@ hjkl6 = (eval ("aline" + q1 + "ver" + q3 + 'y2'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topleft", q2, "ver", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "ver" + q3 + 'y2'] += 0.5
 }
@@ -1548,6 +1705,7 @@ hjkl6 = (eval ("aline" + q1 + "hor" + q3 + 'y'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topleft", q2, "hor", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "hor" + q3 + 'x2'] += 0.5
 }
@@ -1578,6 +1736,7 @@ hjkl6 = (eval ("aline" + q1 + "hor" + q3 + 'y'))
 ctx.beginPath()
 ctx.moveTo(hjkl5, hjkl6)
 ctx.quadraticCurveTo(hjkl1, hjkl2, hjkl3, hjkl4);
+mmsApplyStyleDash(mmsPairStyle(q1, "topleft", q2, "hor", q3), ewidth);
 ctx.stroke()
 window["aline" + q1 + "hor" + q3 + 'x1'] -= 0.5
 }
@@ -1612,6 +1771,7 @@ while ((q2 - 1) < (eval ("aline" + q1 + "ver"))){
 ctx.beginPath()
 ctx.moveTo((eval ("aline" + q1 + "ver" + q2 + "x")), (eval ("aline" + q1 + "ver" + q2 + "y1")))
 ctx.lineTo((eval ("aline" + q1 + "ver" + q2 + "x")), (eval ("aline" + q1 + "ver" + q2 + "y2"))) 
+mmsApplyStyleDash(mmsEffSegStyle(q1, "ver", q2), ewidth);
 ctx.stroke()
 
 
@@ -1625,6 +1785,7 @@ while ((q2 - 1) < (eval ("aline" + q1 + "hor"))){
 ctx.beginPath()
 ctx.moveTo((eval ("aline" + q1 + "hor" + q2 + "x1")), (eval ("aline" + q1 + "hor" + q2 + "y")))
 ctx.lineTo((eval ("aline" + q1 + "hor" + q2 + "x2")), (eval ("aline" + q1 + "hor" + q2 + "y"))) 
+mmsApplyStyleDash(mmsEffSegStyle(q1, "hor", q2), ewidth);
 ctx.stroke()
 
 
@@ -1638,6 +1799,7 @@ while ((q2 - 1) < (eval ("aline" + q1 + "topleft"))){
 ctx.beginPath()
 ctx.moveTo((eval ("aline" + q1 + "topleft" + q2 + "x")), (eval ("aline" + q1 + "topleft" + q2 + "y")))
 ctx.lineTo((eval ("aline" + q1 + "topleft" + q2 + "x") + (eval ("aline" + q1 + "topleft" + q2 + "width"))), ((eval ("aline" + q1 + "topleft" + q2 + "y")) + (eval ("aline" + q1 + "topleft" + q2 + "width"))))
+mmsApplyStyleDash(mmsEffSegStyle(q1, "topleft", q2), ewidth);
 ctx.stroke()
 
 
@@ -1652,11 +1814,18 @@ while ((q2 - 1) < (eval ("aline" + q1 + "topright"))){
 ctx.beginPath()
 ctx.moveTo((eval ("aline" + q1 + "topright" + q2 + "x")), (eval ("aline" + q1 + "topright" + q2 + "y")))
 ctx.lineTo((eval ("aline" + q1 + "topright" + q2 + "x") - (eval ("aline" + q1 + "topright" + q2 + "width"))), ((eval ("aline" + q1 + "topright" + q2 + "y")) + (eval ("aline" + q1 + "topright" + q2 + "width"))))
+mmsApplyStyleDash(mmsEffSegStyle(q1, "topright", q2), ewidth);
 ctx.stroke()
 
 
 q2++
 }
+
+} /* end mmsPass */
+
+/* MMS-PATCH line style restore: stations always solid, no casing */
+try { ctx.setLineDash([]); } catch (mmsLnRsE){}
+if (mmsLnOrigStroke != 0){ ctx.stroke = mmsLnOrigStroke; mmsLnOrigStroke = 0; }
 
 q1++
 }
@@ -1678,6 +1847,17 @@ gaagpootext = (eval ("line" + q1 + "station" + q2 + "text"))
 gaagpoox = (eval ("line" + q1 + "station" + q2 + "x"))
 gaagpooy = (eval ("line" + q1 + "station" + q2 + "y"))
 if (gaagpootype == 1){
+/* MMS-PATCH cased dot: border ring under the line-color dot */
+mmsDtBw = 0; mmsDtBc = "";
+try { mmsDtBwV = eval("line" + q1 + "bwid"); if (((typeof mmsDtBwV) == "number") && (mmsDtBwV > 0)){ mmsDtBw = mmsDtBwV; } } catch (mmsDtBwE){}
+try { mmsDtBcV = eval("line" + q1 + "bcol"); if (((typeof mmsDtBcV) == "string") && (mmsDtBcV != "")){ mmsDtBc = mmsDtBcV; } } catch (mmsDtBcE){}
+if ((mmsDtBw > 0) && (mmsDtBc != "")){
+ctx.fillStyle = mmsDtBc;
+ctx.beginPath();
+ctx.arc(gaagpoox,gaagpooy,((gpooggq*stat1q) + mmsDtBw),0,Math.PI*2,true);
+ctx.closePath();
+ctx.fill();
+}
 ctx.fillStyle = gpoogg
 ctx.beginPath();
 ctx.arc(gaagpoox,gaagpooy,(gpooggq*stat1q),0,Math.PI*2,true);
@@ -1687,60 +1867,64 @@ ctx.fill();
 
 if (gaagpootype == 2){
 stat2qq = (stat2q * gpooggq)
-if (gaagpoodir == 1){
-ctx.beginPath()
-ctx.moveTo(gaagpoox, gaagpooy)
-ctx.lineTo((gaagpoox - (stat2qq * 0.65)), (gaagpooy - (stat2qq * 0.65)))
-ctx.stroke()
+/* MMS-PATCH cased dash tick: line-color core over the whole tick, border
+   casing only on the protruding part (it starts half a line-width out, buried
+   in the line's own casing) so the interior stays line color. */
+mmsTkTx = gaagpoox; mmsTkTy = gaagpooy; mmsTkUx = 0; mmsTkUy = 0; mmsTkOk = 0;
+if (gaagpoodir == 1){ mmsTkTx = (gaagpoox - (stat2qq * 0.65)); mmsTkTy = (gaagpooy - (stat2qq * 0.65)); mmsTkUx = -0.7071; mmsTkUy = -0.7071; mmsTkOk = 1; }
+if (gaagpoodir == 2){ mmsTkTx = (gaagpoox); mmsTkTy = ((gaagpooy - (stat2qq * 1))); mmsTkUx = 0; mmsTkUy = -1; mmsTkOk = 1; }
+if (gaagpoodir == 3){ mmsTkTx = (gaagpoox + (stat2qq * 0.65)); mmsTkTy = (gaagpooy - (stat2qq * 0.65)); mmsTkUx = 0.7071; mmsTkUy = -0.7071; mmsTkOk = 1; }
+if (gaagpoodir == 4){ mmsTkTx = (gaagpoox - (stat2qq * 1)); mmsTkTy = (gaagpooy); mmsTkUx = -1; mmsTkUy = 0; mmsTkOk = 1; }
+if (gaagpoodir == 5){ mmsTkTx = (gaagpoox + (stat2qq * 1)); mmsTkTy = (gaagpooy); mmsTkUx = 1; mmsTkUy = 0; mmsTkOk = 1; }
+if (gaagpoodir == 6){ mmsTkTx = (gaagpoox - (stat2qq * 0.65)); mmsTkTy = (gaagpooy + (stat2qq * 0.65)); mmsTkUx = -0.7071; mmsTkUy = 0.7071; mmsTkOk = 1; }
+if (gaagpoodir == 7){ mmsTkTx = (gaagpoox); mmsTkTy = ((gaagpooy + (stat2qq * 1))); mmsTkUx = 0; mmsTkUy = 1; mmsTkOk = 1; }
+if (gaagpoodir == 8){ mmsTkTx = (gaagpoox + (stat2qq * 0.65)); mmsTkTy = (gaagpooy + (stat2qq * 0.65)); mmsTkUx = 0.7071; mmsTkUy = 0.7071; mmsTkOk = 1; }
+if (mmsTkOk == 1){
+mmsTkBw = 0; mmsTkBc = "";
+try { mmsTkBwV = eval("line" + q1 + "bwid"); if (((typeof mmsTkBwV) == "number") && (mmsTkBwV > 0)){ mmsTkBw = mmsTkBwV; } } catch (mmsTkBwE){}
+try { mmsTkBcV = eval("line" + q1 + "bcol"); if (((typeof mmsTkBcV) == "string") && (mmsTkBcV != "")){ mmsTkBc = mmsTkBcV; } } catch (mmsTkBcE){}
+if ((mmsTkBw > 0) && (mmsTkBc != "")){
+/* MMS-PATCH cased dash tick: butt casing from the buried point (flush with
+   the line border, no gap), red tip dot, then the round line-color core
+   (closed tip with a uniform ring). */
+mmsTkCp = ctx.lineCap;
+mmsTkCw = (gpooggq + (mmsTkBw * 2));
+try { ctx.lineCap = "butt"; } catch (mmsTkCpE){}
+try { ctx.setLineDash([]); } catch (mmsTkDsE){}
+ctx.strokeStyle = mmsTkBc;
+ctx.lineWidth = mmsTkCw;
+ctx.beginPath();
+ctx.moveTo((gaagpoox + ((gpooggq / 2) * mmsTkUx)), (gaagpooy + ((gpooggq / 2) * mmsTkUy)));
+ctx.lineTo(mmsTkTx, mmsTkTy);
+ctx.stroke();
+ctx.fillStyle = mmsTkBc;
+ctx.beginPath();
+ctx.arc(mmsTkTx, mmsTkTy, (mmsTkCw / 2),0,Math.PI*2,true);
+ctx.closePath();
+ctx.fill();
+try { ctx.lineCap = "round"; } catch (mmsTkCpE2){}
+ctx.strokeStyle = gpoogg;
+ctx.lineWidth = gpooggq;
+ctx.beginPath();
+ctx.moveTo(gaagpoox, gaagpooy);
+ctx.lineTo(mmsTkTx, mmsTkTy);
+ctx.stroke();
+try { ctx.lineCap = mmsTkCp; } catch (mmsTkCpE3){}
+} else {
+ctx.strokeStyle = gpoogg;
+ctx.lineWidth = gpooggq;
+ctx.beginPath();
+ctx.moveTo(gaagpoox, gaagpooy);
+ctx.lineTo(mmsTkTx, mmsTkTy);
+ctx.stroke();
 }
-if (gaagpoodir == 2){
-ctx.beginPath()
-ctx.moveTo(gaagpoox, gaagpooy)
-ctx.lineTo((gaagpoox), (gaagpooy - (stat2qq * 1)))
-ctx.stroke()
 }
-if (gaagpoodir == 3){
-ctx.beginPath()
-ctx.moveTo(gaagpoox, gaagpooy)
-ctx.lineTo((gaagpoox + (stat2qq * 0.65)), (gaagpooy - (stat2qq * 0.65)))
-ctx.stroke()
-}
-if (gaagpoodir == 4){
-ctx.beginPath()
-ctx.moveTo(gaagpoox, gaagpooy)
-ctx.lineTo((gaagpoox - (stat2qq * 1)), (gaagpooy))
-ctx.stroke()
-}
-if (gaagpoodir == 5){
-ctx.beginPath()
-ctx.moveTo(gaagpoox, gaagpooy)
-ctx.lineTo((gaagpoox + (stat2qq * 1)), (gaagpooy))
-ctx.stroke()
-}
-if (gaagpoodir == 6){
-ctx.beginPath()
-ctx.moveTo(gaagpoox, gaagpooy)
-ctx.lineTo((gaagpoox - (stat2qq * 0.65)), (gaagpooy + (stat2qq * 0.65)))
-ctx.stroke()
-}
-if (gaagpoodir == 7){
-ctx.beginPath()
-ctx.moveTo(gaagpoox, gaagpooy)
-ctx.lineTo((gaagpoox), (gaagpooy + (stat2qq * 1)))
-ctx.stroke()
-}
-if (gaagpoodir == 8){
-ctx.beginPath()
-ctx.moveTo(gaagpoox, gaagpooy)
-ctx.lineTo((gaagpoox + (stat2qq * 0.65)), (gaagpooy + (stat2qq * 0.65)))
-ctx.stroke()
 }
 
 
 
 
 
-}
 
 
 if (gaagpootype == 3){
@@ -1821,6 +2005,55 @@ ctx.lineTo((gaagpoox - mmsPillR2*mmsPillNX),(gaagpooy - mmsPillR2*mmsPillNY));
 ctx.closePath();
 ctx.fill();
 if (gpooggq > 0){ stat6q = ((((mmsPillW + mmsPillR*2)/2)/gpooggq)*1.2); } else { stat6q = 1.85; }
+}
+if (gaagpootype == 7){
+/* MMS-PATCH arrow: continuation marker pointing toward gaagpoodir */
+mmsArUX = 1; mmsArUY = 0;
+if (gaagpoodir == 1){ mmsArUX = -0.7071; mmsArUY = -0.7071; }
+if (gaagpoodir == 2){ mmsArUX = 0; mmsArUY = -1; }
+if (gaagpoodir == 3){ mmsArUX = 0.7071; mmsArUY = -0.7071; }
+if (gaagpoodir == 4){ mmsArUX = -1; mmsArUY = 0; }
+if (gaagpoodir == 5){ mmsArUX = 1; mmsArUY = 0; }
+if (gaagpoodir == 6){ mmsArUX = -0.7071; mmsArUY = 0.7071; }
+if (gaagpoodir == 7){ mmsArUX = 0; mmsArUY = 1; }
+if (gaagpoodir == 8){ mmsArUX = 0.7071; mmsArUY = 0.7071; }
+mmsArNX = (0 - mmsArUY); mmsArNY = mmsArUX;
+mmsArTX = (gaagpoox + (gpooggq * 1.0)*mmsArUX); mmsArTY = (gaagpooy + (gpooggq * 1.0)*mmsArUY);
+mmsArPX = (mmsArTX + (gpooggq * 1.8)*mmsArUX); mmsArPY = (mmsArTY + (gpooggq * 1.8)*mmsArUY);
+mmsArBw = 0; mmsArBc = "";
+try { mmsArBwV = eval("line" + q1 + "bwid"); if (((typeof mmsArBwV) == "number") && (mmsArBwV > 0)){ mmsArBw = mmsArBwV; } } catch (mmsArBwE){}
+try { mmsArBcV = eval("line" + q1 + "bcol"); if (((typeof mmsArBcV) == "string") && (mmsArBcV != "")){ mmsArBc = mmsArBcV; } } catch (mmsArBcE){}
+if ((mmsArBw > 0) && (mmsArBc != "")){
+/* MMS-PATCH cased arrow: filled red silhouette (buried start, like dash
+   ticks, so the line stays continuous), then the line-color silhouette on
+   top. Single fills per color, so no seams anywhere. */
+mmsArRW = ((gpooggq / 2) + mmsArBw);
+mmsArRH = ((gpooggq * 1.1) + mmsArBw);
+mmsArRX = (mmsArPX + mmsArBw*mmsArUX); mmsArRY = (mmsArPY + mmsArBw*mmsArUY);
+mmsArQX = (gaagpoox + ((gpooggq / 2) * mmsArUX)); mmsArQY = (gaagpooy + ((gpooggq / 2) * mmsArUY));
+ctx.fillStyle = mmsArBc;
+ctx.beginPath();
+ctx.moveTo((mmsArQX + mmsArRW*mmsArNX), (mmsArQY + mmsArRW*mmsArNY));
+ctx.lineTo((mmsArTX + mmsArRW*mmsArNX), (mmsArTY + mmsArRW*mmsArNY));
+ctx.lineTo((mmsArTX + mmsArRH*mmsArNX), (mmsArTY + mmsArRH*mmsArNY));
+ctx.lineTo(mmsArRX, mmsArRY);
+ctx.lineTo((mmsArTX - mmsArRH*mmsArNX), (mmsArTY - mmsArRH*mmsArNY));
+ctx.lineTo((mmsArTX - mmsArRW*mmsArNX), (mmsArTY - mmsArRW*mmsArNY));
+ctx.lineTo((mmsArQX - mmsArRW*mmsArNX), (mmsArQY - mmsArRW*mmsArNY));
+ctx.closePath();
+ctx.fill();
+}
+ctx.fillStyle = gpoogg;
+ctx.beginPath();
+ctx.moveTo((gaagpoox + (gpooggq / 2)*mmsArNX), (gaagpooy + (gpooggq / 2)*mmsArNY));
+ctx.lineTo((mmsArTX + (gpooggq / 2)*mmsArNX), (mmsArTY + (gpooggq / 2)*mmsArNY));
+ctx.lineTo((mmsArTX + (gpooggq * 1.1)*mmsArNX), (mmsArTY + (gpooggq * 1.1)*mmsArNY));
+ctx.lineTo(mmsArPX, mmsArPY);
+ctx.lineTo((mmsArTX - (gpooggq * 1.1)*mmsArNX), (mmsArTY - (gpooggq * 1.1)*mmsArNY));
+ctx.lineTo((mmsArTX - (gpooggq / 2)*mmsArNX), (mmsArTY - (gpooggq / 2)*mmsArNY));
+ctx.lineTo((gaagpoox - (gpooggq / 2)*mmsArNX), (gaagpooy - (gpooggq / 2)*mmsArNY));
+ctx.closePath();
+ctx.fill();
 }
 mmsTextFontQ = mmsTextFont;if ((mmsTextFontQ.indexOf(" ") != -1)){ mmsTextFontQ = ('"' + mmsTextFontQ + '"'); }
 ctx.font = (fontzsize + "pt " + mmsTextFontQ)
@@ -2284,6 +2517,9 @@ window["line" + numlines + "topleft"] = 0
 window["line" + numlines + "topright"] = 0
 window["line" + numlines + "col"] = '#000000'
 window["line" + numlines + "width"] = 4
+window["line" + numlines + "style"] = "solid"
+window["line" + numlines + "bwid"] = 0
+window["line" + numlines + "bcol"] = "#ffffff"
 routechange()
 }
 
@@ -2439,6 +2675,16 @@ q1 = 1
 while ((q1 - 1) < numlines ){
 thedata += (";line" + q1 + "col = \"" + eval ("line" + q1 + "col") + "\"")
 thedata += (";line" + q1 + "width = " + eval ("line" + q1 + "width"))
+/* MMS-PATCH line style persisted (same eval round-trip as the rest) */
+try { mmsLnStySv = eval("line" + q1 + "style"); } catch (mmsLnStySvE){ mmsLnStySv = "solid"; }
+if (((typeof mmsLnStySv) != "string") || ((mmsLnStySv != "solid") && (mmsLnStySv != "dashed"))){ mmsLnStySv = "solid"; }
+thedata += (";line" + q1 + "style = \"" + mmsLnStySv + "\"")
+try { mmsLnBwSv = eval("line" + q1 + "bwid"); } catch (mmsLnBwSvE){ mmsLnBwSv = 0; }
+if (((typeof mmsLnBwSv) != "number") || (!(mmsLnBwSv >= 0))){ mmsLnBwSv = 0; }
+thedata += (";line" + q1 + "bwid = " + Math.floor(mmsLnBwSv))
+try { mmsLnBcSv = eval("line" + q1 + "bcol"); } catch (mmsLnBcSvE){ mmsLnBcSv = "#ffffff"; }
+if (((typeof mmsLnBcSv) != "string") || (mmsLnBcSv == "")){ mmsLnBcSv = "#ffffff"; }
+thedata += (";line" + q1 + "bcol = \"" + mmsLnBcSv + "\"")
 
 q2 = 1
 thedata += (";line" + q1 + "ver = " + eval ("line" + q1 + "ver"))
@@ -2446,6 +2692,9 @@ while ((q2 - 1) < (eval ("line" + q1 + "ver"))){
 thedata += (";line" + q1 + "ver" + q2 + "x = " + eval ("line" + q1 + "ver" + q2 + "x"))
 thedata += (";line" + q1 + "ver" + q2 + "y1 = " + eval ("line" + q1 + "ver" + q2 + "y1"))
 thedata += (";line" + q1 + "ver" + q2 + "y2 = " + eval ("line" + q1 + "ver" + q2 + "y2"))
+/* MMS-PATCH per-segment line style (only when stamped; route style covers the rest) */
+try { mmsLnSgSv = eval("line" + q1 + "ver" + q2 + "style"); } catch (mmsLnSgE){ mmsLnSgSv = ""; }
+if ((mmsLnSgSv == "dashed") || (mmsLnSgSv == "solid")){ thedata += (";line" + q1 + "ver" + q2 + "style = \"" + mmsLnSgSv + "\""); }
 q2++
 }
 q2 = 1
@@ -2454,6 +2703,9 @@ while ((q2 - 1) < (eval ("line" + q1 + "hor"))){
 thedata += (";line" + q1 + "hor" + q2 + "x1 = " + eval ("line" + q1 + "hor" + q2 + "x1"))
 thedata += (";line" + q1 + "hor" + q2 + "x2 = " + eval ("line" + q1 + "hor" + q2 + "x2"))
 thedata += (";line" + q1 + "hor" + q2 + "y = " + eval ("line" + q1 + "hor" + q2 + "y"))
+/* MMS-PATCH per-segment line style (only when stamped; route style covers the rest) */
+try { mmsLnSgSv = eval("line" + q1 + "hor" + q2 + "style"); } catch (mmsLnSgE2){ mmsLnSgSv = ""; }
+if ((mmsLnSgSv == "dashed") || (mmsLnSgSv == "solid")){ thedata += (";line" + q1 + "hor" + q2 + "style = \"" + mmsLnSgSv + "\""); }
 q2++
 }
 /*
@@ -2472,6 +2724,9 @@ while ((q2 - 1) < (eval ("line" + q1 + "topleft"))){
 thedata += (";line" + q1 + "topleft" + q2 + "x = " + eval ("line" + q1 + "topleft" + q2 + "x"))
 thedata += (";line" + q1 + "topleft" + q2 + "y = " + eval ("line" + q1 + "topleft" + q2 + "y"))
 thedata += (";line" + q1 + "topleft" + q2 + "width = " + eval ("line" + q1 + "topleft" + q2 + "width"))
+/* MMS-PATCH per-segment line style (only when stamped; route style covers the rest) */
+try { mmsLnSgSv = eval("line" + q1 + "topleft" + q2 + "style"); } catch (mmsLnSgE3){ mmsLnSgSv = ""; }
+if ((mmsLnSgSv == "dashed") || (mmsLnSgSv == "solid")){ thedata += (";line" + q1 + "topleft" + q2 + "style = \"" + mmsLnSgSv + "\""); }
 q2++
 }
 q2 = 1
@@ -2480,6 +2735,9 @@ while ((q2 - 1) < (eval ("line" + q1 + "topright"))){
 thedata += (";line" + q1 + "topright" + q2 + "x = " + eval ("line" + q1 + "topright" + q2 + "x"))
 thedata += (";line" + q1 + "topright" + q2 + "y = " + eval ("line" + q1 + "topright" + q2 + "y"))
 thedata += (";line" + q1 + "topright" + q2 + "width = " + eval ("line" + q1 + "topright" + q2 + "width"))
+/* MMS-PATCH per-segment line style (only when stamped; route style covers the rest) */
+try { mmsLnSgSv = eval("line" + q1 + "topright" + q2 + "style"); } catch (mmsLnSgE4){ mmsLnSgSv = ""; }
+if ((mmsLnSgSv == "dashed") || (mmsLnSgSv == "solid")){ thedata += (";line" + q1 + "topright" + q2 + "style = \"" + mmsLnSgSv + "\""); }
 q2++
 }
 

@@ -50,6 +50,8 @@ import {
   getCurve,
   getDprK,
   getFontSize,
+  getLineBorder,
+  getLineStyle,
   getMouseMode,
   getParkBorderColor,
   getParkBorderWidth,
@@ -84,6 +86,9 @@ import {
   setCurve,
   setDprK,
   setFontSize,
+  setLineBorderColor,
+  setLineBorderWidth,
+  setLineStyle,
   setMouseMode,
   setParkBorderColor,
   setParkBorderWidth,
@@ -114,8 +119,11 @@ import {
   PILL_DEFAULT_W,
   PILL_MAX_W,
   PILL_MIN_W,
+  LINE_BORDER_DEFAULT_COLOR,
+  LINE_BORDER_MAX_W,
   SEA_LINE_W,
   STYLE_DEFAULTS,
+  type LineStyle,
   type RiverDrag,
   type RouteInfo,
   type ToolMode,
@@ -164,6 +172,9 @@ export default function Editor({ projectId, sessionKey, onHome, onBound, theme, 
   const [lineName, setLineName] = useState('');
   const [lineColor, setLineColor] = useState('#000000');
   const [lineWidth, setLineWidth] = useState(4);
+  const [lineStyle, setLineStyleState] = useState<LineStyle>('solid');
+  const [lineBorderColor, setLineBorderColorState] = useState(LINE_BORDER_DEFAULT_COLOR);
+  const [lineBorderWidth, setLineBorderWidthState] = useState(0);
   const [curve, setCurveState] = useState(2);
   const [fontSize, setFontSizeState] = useState(8);
   const [textColor, setTextColorState] = useState(STYLE_DEFAULTS.textColor);
@@ -237,6 +248,10 @@ export default function Editor({ projectId, sessionKey, onHome, onBound, theme, 
     }
     setLineColor(info?.color ?? '#000000');
     setLineWidth(info?.width ?? 4);
+    setLineStyleState(info?.style ?? getLineStyle(cur));
+    const border = getLineBorder(cur);
+    setLineBorderColorState(info?.borderColor ?? border.color);
+    setLineBorderWidthState(info?.borderWidth ?? border.width);
     setCurveState(getCurve());
     setFontSizeState(getFontSize());
   }, []);
@@ -1308,6 +1323,28 @@ export default function Editor({ projectId, sessionKey, onHome, onBound, theme, 
           onLineWidth={(v) => {
             setLineWidth(v);
             applyLineWidth(current, v);
+            notifyRoutes();
+            pushSnapshot();
+          }}
+          lineStyle={lineStyle}
+          onLineStyle={(v) => {
+            setLineStyleState(v);
+            setLineStyle(current, v);
+            notifyRoutes();
+            pushSnapshot();
+          }}
+          lineBorderColor={lineBorderColor}
+          onLineBorderColor={(v) => {
+            setLineBorderColorState(v);
+            setLineBorderColor(current, v);
+            notifyRoutes();
+            pushSnapshot();
+          }}
+          lineBorderWidth={lineBorderWidth}
+          onLineBorderWidth={(v) => {
+            const clamped = Math.min(LINE_BORDER_MAX_W, Math.max(0, Math.floor(v) || 0));
+            setLineBorderWidthState(clamped);
+            setLineBorderWidth(current, clamped);
             notifyRoutes();
             pushSnapshot();
           }}

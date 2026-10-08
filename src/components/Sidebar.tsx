@@ -1,4 +1,5 @@
-import type { RouteInfo, ToolMode } from '../engine/adapter';
+import type { LineStyle, RouteInfo, ToolMode } from '../engine/adapter';
+import { LINE_STYLES } from '../engine/adapter';
 import { Button, FieldLabel, SectionTitle, inputCls } from './ui';
 import {
   FiArrowDown,
@@ -26,6 +27,12 @@ export interface SidebarProps {
   onLineColor: (v: string) => void;
   lineWidth: number;
   onLineWidth: (v: number) => void;
+  lineStyle: LineStyle;
+  onLineStyle: (v: LineStyle) => void;
+  lineBorderColor: string;
+  onLineBorderColor: (v: string) => void;
+  lineBorderWidth: number;
+  onLineBorderWidth: (v: number) => void;
   tool: ToolMode;
   onTool: (t: ToolMode) => void;
   stationDir: number;
@@ -67,6 +74,7 @@ const TYPES = [
   { v: 4, label: 'Limited', desc: 'Part-time stop' },
   { v: 5, label: 'Mega', desc: 'Major terminus' },
   { v: 6, label: 'Pill', desc: 'Directional stretchable interchange' },
+  { v: 7, label: 'Arrow', desc: 'Line continues this way' },
 ];
 
 function toHex6(c: string): string {
@@ -151,6 +159,63 @@ export default function Sidebar(p: SidebarProps) {
             />
           </div>
         </div>
+        <div className="mt-2">
+          <FieldLabel>Type (new strokes)</FieldLabel>
+          <div className="space-y-1">
+            {LINE_STYLES.map((s) => (
+              <button
+                key={s.value}
+                type="button"
+                title={s.desc}
+                onClick={() => p.onLineStyle(s.value)}
+                className={`flex w-full items-center gap-2 rounded-md border px-2 py-1.5 text-left ${
+                  s.value === p.lineStyle ? active : idle
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className="w-6 shrink-0"
+                  style={{
+                    borderTop: `3px ${s.value === 'dashed' ? 'dashed' : 'solid'} currentColor`,
+                  }}
+                />
+                <span className="block">
+                  <span className="block text-xs font-semibold">{s.label}</span>
+                  <span className="block text-[10px] opacity-60">{s.desc}</span>
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="mt-2">
+          <FieldLabel>Outline</FieldLabel>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <FieldLabel htmlFor="line-border-color">Color</FieldLabel>
+              <input
+                id="line-border-color"
+                type="color"
+                className="h-8 w-full cursor-pointer rounded-md border border-zinc-300 bg-white p-1 dark:border-zinc-700 dark:bg-zinc-950"
+                value={toHex6(p.lineBorderColor)}
+                onChange={(e) => p.onLineBorderColor(e.target.value)}
+              />
+            </div>
+            <div>
+              <FieldLabel htmlFor="line-border-width">Width (0 = none)</FieldLabel>
+              <input
+                id="line-border-width"
+                type="number"
+                min={0}
+                max={10}
+                className={inputCls}
+                value={p.lineBorderWidth}
+                onChange={(e) =>
+                  p.onLineBorderWidth(Math.min(10, Math.max(0, Number(e.target.value) || 0)))
+                }
+              />
+            </div>
+          </div>
+        </div>
       </section>
 
       <section className="mb-5">
@@ -183,7 +248,7 @@ export default function Sidebar(p: SidebarProps) {
           <p className="mb-2 text-[11px] leading-snug text-zinc-500 dark:text-zinc-400">
             Stations are silent — name them with the Text tool.
           </p>
-          {(p.stationType === 2 || p.stationType === 6) ? (
+          {(p.stationType === 2 || p.stationType === 6 || p.stationType === 7) ? (
             <div className="mb-3 grid grid-cols-4 gap-1">
               {DIRS.map((d) => (
                 <button
@@ -202,7 +267,7 @@ export default function Sidebar(p: SidebarProps) {
             </div>
           ) : (
             <p className="mb-3 text-[11px] leading-snug text-zinc-500 dark:text-zinc-400">
-              Direction only matters for Dash and Pill stations.
+              Direction only matters for Dash, Pill and Arrow stations.
             </p>
           )}
           <div className="space-y-1">

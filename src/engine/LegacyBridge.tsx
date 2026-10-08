@@ -29,7 +29,7 @@ export default function LegacyBridge() {
         {range(8).map((v) => (
           <input key={v} type="radio" name="qk" value={String(v)} defaultChecked={v === 1} />
         ))}
-        {range(6).map((v) => (
+        {range(7).map((v) => (
           <input key={v} type="radio" name="qkk" value={String(v)} defaultChecked={v === 1} />
         ))}
       </form>
